@@ -6,8 +6,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define     VER_NUM     "0.1a"
-#define     VER_TXT     "skeleton to display window only"
+#define     VER_NUM     "0.1c"
+#define     VER_TXT     "takes in a png image and dislays properly"
 
 
 
@@ -29,6 +29,7 @@
 #include    <yFONT.h>        /* CUSTOM  heatherly texture-mapped fonts        */
 #include    <ySTR.h>         /* CUSTOM  heatherly string handling             */
 #include    <yVIKEYS.h>      /* CUSTOM  heatherly vi_keys standard            */
+#include    <yGLTEX.h>       /* CUSTOM  heatherly texture handling            */
 
 
 
@@ -47,6 +48,38 @@
 #define     LEN_STR     200
 #define     LEN_LABEL   20
 
+
+
+typedef     struct      cACCESSOR  tACCESSOR;
+struct cACCESSOR {
+   /*---(full window)-----*/
+   char        w_title   [LEN_STR];
+   int         w_wide;
+   int         w_tall;
+   /*---(font)------------*/
+   char        font_name   [LEN_LABEL];
+   char        font;
+   /*---(title window)----*/
+   int         t_wide;                      /* width  of title window         */
+   int         t_left;                      /* left   of title window         */
+   int         t_tall;                      /* height of title window         */
+   int         t_bott;                      /* bottom of title window         */
+   char        t_text    [LEN_STR];         /* title bar text                 */
+   /*---(main window)-----*/
+   int         m_wide;                      /* width  of main window          */
+   int         m_left;                      /* left   of main window          */
+   int         m_tall;                      /* height of main window          */
+   int         m_bott;                      /* bottom of main window          */
+   char        m_file    [LEN_STR];         /* image to load and save         */
+   int         m_tex;                       /* image texture                  */
+   /*---(command line)----*/
+   int         c_wide;                      /* width  of command window       */
+   int         c_left;                      /* left   of command window       */
+   int         c_tall;                      /* height of command window       */
+   int         c_bott;                      /* bottom of command window       */
+   char        c_text      [LEN_STR];       /* current text in command mode   */
+};
+extern      tACCESSOR   my;
 
 
 

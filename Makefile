@@ -21,9 +21,9 @@ INCS    = -I/usr/local/include
 #------   (0)-------------- (1)-------------- (2)-------------- (3)-------------- (4)-------------- (5)-------------- (6)-------------- (7)-------------- (8)-------------- (9)-------------- (A)-------------- (B)-------------- (C)-------------- (D)-------------- (E)-------------- (F)--------------
 LINK    = gcc
 LIBDIR  = -L/usr/local/lib
-LIBS    = ${LIBDIR}         -lX11             -lGL              -lGLU             -lyX11            -lyVIKEYS         -lyFONT           -lySTR            -lm               -lyURG
-LIBD    = ${LIBDIR}         -lX11             -lGL              -lGLU             -lyX11            -lyVIKEYS_debug   -lyFONT_debug     -lySTR_debug      -lm               -lyURG_debug      -lyLOG
-LIBU    = ${LIBDIR}         -lX11             -lGL              -lGLU             -lyX11            -lyVIKEYS_debug   -lyFONT_debug     -lySTR_debug      -lm               -lyURG_debug      -lyLOG            -lyVAR            -lyUNIT
+LIBS    = ${LIBDIR}         -lX11             -lGL              -lGLU             -lyX11            -lyVIKEYS         -lyFONT           -lyGLTEX          -lySTR            -lm               -lyURG
+LIBD    = ${LIBDIR}         -lX11             -lGL              -lGLU             -lyX11            -lyVIKEYS_debug   -lyFONT_debug     -lyGLTEX_debug    -lySTR_debug      -lm               -lyURG_debug      -lyLOG
+LIBU    = ${LIBDIR}         -lX11             -lGL              -lGLU             -lyX11            -lyVIKEYS_debug   -lyFONT_debug     -lyGLTEX_debug    -lySTR_debug      -lm               -lyURG_debug      -lyLOG            -lyVAR            -lyUNIT
 
 #===(file lists)============================================================================================================================================================================#
 #------   (0)-------------- (1)-------------- (2)-------------- (3)-------------- (4)-------------- (5)-------------- (6)-------------- (7)-------------- (8)-------------- (9)-------------- (A)-------------- (B)-------------- (C)-------------- (D)-------------- (5)--------------
