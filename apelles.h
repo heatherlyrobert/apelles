@@ -6,8 +6,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define     VER_NUM     "0.1c"
-#define     VER_TXT     "takes in a png image and dislays properly"
+#define     VER_NUM     "0.2a"
+#define     VER_TXT     "uses yVIKEYS for map mode and moving a basic cursor"
 
 
 
@@ -16,6 +16,7 @@
 #include    <stdio.h>        /* CLIBC   standard input/output                 */
 #include    <stdlib.h>       /* CLIBC   standard general purpose              */
 #include    <string.h>       /* CLIBC   standard string handling              */
+#include    <time.h>         /* CLIBC   standard time and date handling       */
 /*---(X11 standard)----------------------*/
 #include    <X11/X.h>        /* X11     standard overall file                 */
 #include    <X11/Xlib.h>     /* X11     standard C API                        */
@@ -48,6 +49,12 @@
 #define     LEN_STR     200
 #define     LEN_LABEL   20
 
+/*---(run as)----------*/
+#define     RUN_USER           'i'      /* running in user mode (ncurses)     */
+#define     RUN_TEST           '-'      /* running as a test    (no ncurses)  */
+
+
+typedef struct timespec  tTSPEC;
 
 
 typedef     struct      cACCESSOR  tACCESSOR;
@@ -56,6 +63,9 @@ struct cACCESSOR {
    char        w_title   [LEN_STR];
    int         w_wide;
    int         w_tall;
+   /*---(image)-----------*/
+   int         i_wide;
+   int         i_tall;
    /*---(font)------------*/
    char        font_name   [LEN_LABEL];
    char        font;
@@ -81,6 +91,8 @@ struct cACCESSOR {
 };
 extern      tACCESSOR   my;
 
+char DRAW_init            (void);
+char PROG_sizes           (int a_wide, int a_tall);
 
 
 #endif
