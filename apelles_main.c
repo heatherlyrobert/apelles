@@ -38,11 +38,11 @@ MAP_driver           (char a_dir)
    x_map->gmax = x_map->amax = x_map->lmax = x_map->next = -1;
    /*---(do columns)---------------------*/
    for (i = 0; i <= x_max; ++i) {
-      if (c >= 25) {
-         c = 0;
-         ++x_unit;
-      }
-      x_map->map [i] = x_unit;
+      /*> if (c >= 25) {                                                              <* 
+       *>    c = 0;                                                                   <* 
+       *>    ++x_unit;                                                                <* 
+       *> }                                                                           <*/
+      x_map->map [i] = ++x_unit;
       ++c;
    }
    x_map->avail = x_max - 1;
@@ -108,6 +108,8 @@ PROG_init            (void)
    /*> printf ("rc = %d\n", rc);                                                      <*/
    rc = yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , USER_quit            , ""                                                            );
    /*> printf ("rc = %d\n", rc);                                                      <*/
+   yVIKEYS_view_set_gridoff  (0, 0, 0);
+   yVIKEYS_view_set_gridsize (60, 60, 60);
    DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -175,19 +177,6 @@ DRAW_init          (void)
    return 0;
 }
 
-char          /*----: draw the saved status ----------------------------------*/
-DRAW_cursor        (void)
-{
-   /*> if (my.touch == 'y')  return 0;                                                <*/
-   int         x_tall;
-   yVIKEYS_view_corners ('m', NULL   , NULL   , NULL   , &x_tall, NULL);
-   glPointSize  (5.0);
-   glColor4f    (1.00f, 0.00f, 0.00f, 1.0f);
-   glBegin      (GL_POINTS); {
-      glVertex3f   (s_colmap.cur / s_mag, x_tall - (s_rowmap.cur / s_mag), 20.0);
-   } glEnd ();
-   return 0;
-}
 
 char
 DRAW_now             (void)
@@ -220,7 +209,8 @@ DRAW_now             (void)
       } glEnd();
       glBindTexture(GL_TEXTURE_2D, 0);
    } glPopMatrix();
-   DRAW_cursor ();
+   yVIKEYS_view_grid   (s_mag);
+   yVIKEYS_view_cursor (s_mag);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -284,81 +274,6 @@ PROG_event           (void)
    return 1;
 }
 
-/*> char                                                                                                  <* 
- *> PROG_event           (void)                                                                           <* 
- *> {                                                                                                     <* 
- *>    /+---(locals)-----------+-----------+-+/                                                           <* 
- *>    int         x_updates   = 0;                                                                       <* 
- *>    char        rc          = 0;                                                                       <* 
- *>    XKeyEvent  *key_event;                                                                             <* 
- *>    char        the_key[5];                                                                            <* 
- *>    int         the_bytes;                                                                             <* 
- *>    uchar       ch          = 0;                                                                       <* 
- *>    /+---(loop)---------------------------+/                                                           <* 
- *>    while (1) {                                                                                        <* 
- *>       XNextEvent(DISP, &EVNT);                                                                        <* 
- *>       ++x_updates;                                                                                    <* 
- *>       switch(EVNT.type) {                                                                             <* 
- *>       case Expose:                                                                                    <* 
- *>          break;                                                                                       <* 
- *>       case ConfigureNotify:                                                                           <* 
- *>          break;                                                                                       <* 
- *>       case KeyPress:                                                                                  <* 
- *>          /+---(prepare)---------------+/                                                              <* 
- *>          key_event  = (XKeyEvent *) &EVNT;                                                            <* 
- *>          the_bytes = XLookupString((XKeyEvent *) &EVNT, the_key, 5, NULL, NULL);                      <* 
- *>          if (the_bytes < 1) break;                                                                    <* 
- *>          /+---(handle)----------------+/                                                              <* 
- *>          ch      = the_key [0];                                                                       <* 
- *>          switch (ch) {                                                                                <* 
- *>          case 'Q'  :                                                                                  <* 
- *>             return -1;                                                                                <* 
- *>             break;                                                                                    <* 
- *>          case '1'  :                                                                                  <* 
- *>             PROG_sizes  (my.i_wide / 1.0, my.i_tall / 1.0);                                           <* 
- *>             yX11_resize (my.w_wide, my.w_tall);                                                       <* 
- *>             break;                                                                                    <* 
- *>          case '2'  :                                                                                  <* 
- *>             PROG_sizes  (my.i_wide / 2.0, my.i_tall / 2.0);                                           <* 
- *>             yX11_resize (my.w_wide, my.w_tall);                                                       <* 
- *>             break;                                                                                    <* 
- *>          case '3'  :                                                                                  <* 
- *>             PROG_sizes  (my.i_wide / 3.0, my.i_tall / 3.0);                                           <* 
- *>             yX11_resize (my.w_wide, my.w_tall);                                                       <* 
- *>             break;                                                                                    <* 
- *>          case '4'  :                                                                                  <* 
- *>             PROG_sizes  (my.i_wide / 4.0, my.i_tall / 4.0);                                           <* 
- *>             yX11_resize (my.w_wide, my.w_tall);                                                       <* 
- *>             break;                                                                                    <* 
- *>          }                                                                                            <* 
- *>       }                                                                                               <* 
- *>       /+> printf ("my.p_cursec = %6.1f, my_ppos = %6.1f\n", my.p_cursec, my_ppos);              <+/   <* 
- *>       /+---(check boundaries)------------+/                                                           <* 
- *>       /+> if (my.p_moving == 'y')  my.p_cursec += my.p_adv;                                <+/        <* 
- *>       /+> yVIKEYS_speed_adv  (&my.p_cursec);                                          <*              <* 
- *>        *> if (my.p_cursec <  0.0f)   {                                                <*              <* 
- *>        *>    yVIKEYS_speed_stop (&my.p_waitns);                                       <*              <* 
- *>        *>    my.p_cursec = 0.0;                                                       <*              <* 
- *>        *>    if (my.p_quit == 'y')  break;                                            <*              <* 
- *>        *> }                                                                           <*              <* 
- *>        *> if (my.p_cursec >= my.p_len) {                                              <*              <* 
- *>        *>    yVIKEYS_speed_stop (&my.p_waitns);                                       <*              <* 
- *>        *>    my.p_cursec = my.p_len;                                                  <*              <* 
- *>        *>    if (my.p_quit == 'y')  break;                                            <*              <* 
- *>        *> }                                                                           <*              <* 
- *>        *> if (my.p_endsec > 0.0 && my.p_cursec >= my.p_endsec) {                      <*              <* 
- *>        *>    yVIKEYS_speed_stop (&my.p_waitns);                                       <*              <* 
- *>        *>    if (my.p_quit == 'y')  break;                                            <*              <* 
- *>        *> }                                                                           <*              <* 
- *>        *> gait.pos = my.p_cursec;                                                     <+/             <* 
- *>       /+---(check boundaries)------------+/                                                           <* 
- *>       DEBUG_GRAF   yLOG_note    ("clear background");                                                 <* 
- *>       DRAW_main ();                                                                                   <* 
- *>    }                                                                                                  <* 
-*>    return 0;                                                                                          <* 
-*> }                                                                                                     <*/
-
-
 int
 main                 (int argc, char *argv[])
 {
@@ -384,7 +299,8 @@ main                 (int argc, char *argv[])
    /*> printf ("%2d  %-30.30s  %4dw  %4dt\n", my.m_tex, my.m_file, x_wide, x_tall);   <*/
    /*> PROG_sizes  (my.i_wide / 2.0, my.i_tall / 2.0);                                <*/
    rc = yVIKEYS_view_resize  ('r', NULL, x_wide / s_mag, x_tall / s_mag, 'y');
-   yVIKEYS_map_init (MAP_col, MAP_row);
+   yVIKEYS_map_init (YVIKEYS_RIGHT, MAP_col, MAP_row);
+   yVIKEYS_map_init (YVIKEYS_RIGHT, MAP_col, MAP_row);
    /*> yX11_resize (my.w_wide, my.w_tall);                                            <*/
    /*---(load font)-----------------------------*/
    my.font = yFONT_load (my.font_name);

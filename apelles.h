@@ -6,8 +6,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define     VER_NUM     "0.2a"
-#define     VER_TXT     "uses yVIKEYS for map mode and moving a basic cursor"
+#define     VER_NUM     "0.2b"
+#define     VER_TXT     "uses yVIKEYS for grid and cursor"
 
 
 
