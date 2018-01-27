@@ -4,7 +4,6 @@
 tACCESSOR   my;
 
 
-static char   s_quit  = '-';
 static float  s_mag   = 2.2;
 
 
@@ -66,7 +65,7 @@ MAP_driver           (char a_dir)
 char
 MAP_col              (char a_type)
 {
-   printf ("mapping cols\n");
+   /*> printf ("mapping cols\n");                                                     <*/
    if (a_type == YVIKEYS_INIT)  MAP_driver   ('C');
    else                         MAP_driver   ('c');
    return 0;
@@ -75,13 +74,11 @@ MAP_col              (char a_type)
 char
 MAP_row              (char a_type)
 {
-   printf ("mapping rows\n");
+   /*> printf ("mapping rows\n");                                                     <*/
    if (a_type == YVIKEYS_INIT)  MAP_driver   ('R');
    else                         MAP_driver   ('r');
    return 0;
 }
-
-char USER_quit (void) { s_quit = 'y'; }
 
 char
 PROG_init            (void)
@@ -100,16 +97,7 @@ PROG_init            (void)
    yVIKEYS_mode_init   ();
    yVIKEYS_mode_enter  (MODE_MAP);
    yVIKEYS_cmds_init   ();
-   rc = yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , USER_quit            , "quit current file (if no changes), exit if the only file"    );
-   /*> printf ("rc = %d\n", rc);                                                      <*/
-   rc = yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , USER_quit            , "quit all files (if no changes), and exit"                    );
-   /*> printf ("rc = %d\n", rc);                                                      <*/
-   rc = yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , USER_quit            , ""                                                            );
-   /*> printf ("rc = %d\n", rc);                                                      <*/
-   rc = yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , USER_quit            , ""                                                            );
-   /*> printf ("rc = %d\n", rc);                                                      <*/
-   yVIKEYS_view_set_gridoff  (0, 0, 0);
-   yVIKEYS_view_set_gridsize (60, 60, 60);
+   yVIKEYS_view_palette  (  0, "lana", "full", "vivid");
    DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -136,6 +124,7 @@ PROG_begin           (void)
    DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
    /*---(open window)---------------------------*/
    /*> yX11_start (my.w_title, my.w_wide, my.w_tall, YX_FOCUSABLE, YX_FIXED, 'n');    <*/
+   /*> yVIKEYS_view_init (my.w_title, my.w_wide, my.w_tall, YX_FOCUSABLE, YX_FIXED, 'n');   <*/
    DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -143,16 +132,43 @@ PROG_begin           (void)
 char
 PROG_end             (void)
 {
-   yX11_end     ();
+   /*> yX11_end     ();                                                               <*/
+   yVIKEYS_view_wrap ();
    DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
    DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
+
 char
-VIEW_sizer           (int a_wide, int a_tall)
+DRAW_view_main       (void)
 {
-   yX11_resize (a_wide, a_tall);
+   int         i           = 0;
+   int         j           = 0;
+   int         x_left, x_bott, x_wide, x_tall;
+   char        x_text      [100]        = "testing";
+   char        rc          = 0;
+   DEBUG_WIND   yLOG_enter   (__FUNCTION__);
+   /*===[[ SETUP VIEW ]]==================================*/
+   rc = yVIKEYS_view_size    (YVIKEYS_MAIN, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_GRAF   yLOG_complex ("main", "bott %4d, left %4d, wide %4d, tall %4d, on %c", x_bott, x_left, x_wide, x_tall, rc);
+   DEBUG_WIND   yLOG_note    ("set viewport");
+   glPushMatrix(); {
+      glBindTexture(GL_TEXTURE_2D, my.m_tex);
+      glBegin(GL_QUAD_STRIP); {
+         glTexCoord2d (     0.00,   0.00);
+         glVertex3f   (     0.00,   0.00,  10.00);
+         glTexCoord2d (     0.00,   1.00);
+         glVertex3f   (     0.00, x_tall,  10.00);
+         glTexCoord2d (     1.00,   0.00);
+         glVertex3f   (x_wide   ,   0.00,  10.00);
+         glTexCoord2d (     1.00,   1.00);
+         glVertex3f   (x_wide   , x_tall,  10.00);
+      } glEnd();
+      glBindTexture(GL_TEXTURE_2D, 0);
+   } glPopMatrix();
+   /*---(complete)-----------------------*/
+   DEBUG_WIND  yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -163,72 +179,30 @@ DRAW_init          (void)
    char        rc          =    0;
    int         x_wide      =    0;
    int         x_tall      =    0;
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   /*---(color)--------------------------*/
-   /*> PROG_sizes  (1000, 860);                                                       <*/
-   rc = yVIKEYS_view_init    (VIEW_sizer, my.w_title, VER_NUM);
-   rc = yVIKEYS_view_resize  ('-', NULL, 1000, 860, 'y');
-   rc = yVIKEYS_view_corners ('w', NULL, NULL, &x_wide, &x_tall, NULL);
-   rc = yX11_start (my.w_title, x_wide, x_tall, YX_FOCUSABLE, YX_FIXED, '-');
+   DEBUG_WIND   yLOG_enter   (__FUNCTION__);
+   /*---(window)-------------------------*/
+   yVIKEYS_view_init     (my.w_title, VER_NUM, 1000, 860, 0);
+   yVIKEYS_view_moderate (YVIKEYS_MAIN    , YVIKEYS_FLAT, YVIKEYS_BOTLEF, YCOLOR_POS_MAX, DRAW_view_main);
+   yVIKEYS_view_moderate (YVIKEYS_ALT     , YVIKEYS_FLAT, YVIKEYS_MIDCEN, YCOLOR_GRY_MAX, NULL  );
+   yVIKEYS_view_simple   (YVIKEYS_PROGRESS, YCOLOR_GRY_MIN, NULL );
+   yVIKEYS_view_simple   (YVIKEYS_NAV     , YCOLOR_GRY_MIN, NULL  );
+   yVIKEYS_view_colors   (YCOLOR_POS, YCOLOR_BAS, YCOLOR_NEG, YCOLOR_POS);
+   /*> rc = yVIKEYS_view_moderate (YVIKEYS_ALT     , YVIKEYS_DISABLE, 0             , 0             , NULL    );   <*/
+   /*> rc = yVIKEYS_view_moderate (YVIKEYS_NAV     , YVIKEYS_DISABLE, 0             , 0             , NULL    );   <*/
+   /*> rc = yVIKEYS_view_moderate (YVIKEYS_DETAILS , YVIKEYS_DISABLE, 0             , 0             , NULL    );   <*/
+   /*> rc = yVIKEYS_view_moderate (YVIKEYS_PROGRESS, YVIKEYS_DISABLE, 0             , 0             , NULL    );   <*/
+   /*> rc = yVIKEYS_view_moderate (YVIKEYS_FORMULA , YVIKEYS_DISABLE, 0             , 0             , NULL    );   <*/
+   /*---(image)--------------------------*/
    yGLTEX_init     ();
-   glClearColor    (0.8f, 0.8f, 0.8f, 1.0f);
+   my.m_tex    = yGLTEX_png2tex (my.m_file);
+   yGLTEX_get_size (&x_wide, &x_tall);
+   /*---(resize)-------------------------*/
+   x_wide /=  s_mag;
+   x_tall /=  s_mag;
+   yVIKEYS_view_resize  (x_wide, x_tall, 0);
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   DEBUG_WIND   yLOG_exit    (__FUNCTION__);
    return 0;
-}
-
-
-char
-DRAW_now             (void)
-{
-   int         i           = 0;
-   int         j           = 0;
-   int         x_left, x_bott, x_wide, x_tall;
-   char        x_text      [100]        = "testing";
-   char        rc          = 0;
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   /*===[[ SETUP VIEW ]]==================================*/
-   rc = yVIKEYS_view_corners ('m', &x_left, &x_bott, &x_wide, &x_tall, NULL);
-   DEBUG_GRAF   yLOG_note    ("set viewport");
-   glViewport      (x_left, x_bott, x_wide, x_tall);
-   glMatrixMode    (GL_PROJECTION);
-   glLoadIdentity  ();
-   glOrtho         (0  , x_wide, 0, x_tall, -500.0,  500.0);
-   glMatrixMode    (GL_MODELVIEW);
-   glPushMatrix(); {
-      glBindTexture(GL_TEXTURE_2D, my.m_tex);
-      glBegin(GL_QUAD_STRIP); {
-         glTexCoord2d (     0.00,      0.00);
-         glVertex3f   (     0.00,      0.00,   0.00);
-         glTexCoord2d (     0.00,      1.00);
-         glVertex3f   (     0.00, x_tall,   0.00);
-         glTexCoord2d (     1.00,      0.00);
-         glVertex3f   (x_wide,      0.00,   0.00);
-         glTexCoord2d (     1.00,      1.00);
-         glVertex3f   (x_wide, x_tall,   0.00);
-      } glEnd();
-      glBindTexture(GL_TEXTURE_2D, 0);
-   } glPopMatrix();
-   yVIKEYS_view_grid   (s_mag);
-   yVIKEYS_view_cursor (s_mag);
-   /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-DRAW_main            (void)
-{
-   glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   yVIKEYS_view_title       ();
-   yVIKEYS_view_status      ();
-   yVIKEYS_view_command     ();
-   yVIKEYS_view_ribbon      ();
-   /*> DRAW_title   ();                                                            <*/
-   /*> DRAW_command ();                                                            <*/
-   DRAW_now    ();
-   glXSwapBuffers(DISP, BASE);
-   glFlush();
 }
 
 char
@@ -262,10 +236,10 @@ PROG_event           (void)
          }
       }
       x_ch = yVIKEYS_main_input  (RUN_USER, x_ch);
-      yVIKEYS_main_handle (x_ch);
-      if (s_quit == 'y')  break;
+      rc   = yVIKEYS_main_handle (x_ch);
+      if (yVIKEYS_quit ())  break;
       ++x_loop;
-      if ((x_loop % 20) == 0)  DRAW_main();
+      if ((x_loop % 20) == 0)  yVIKEYS_view_all (s_mag);
       /*---(sleeping)--------------------*/
       nanosleep    (&x_dur, NULL);
    }
@@ -294,24 +268,16 @@ main                 (int argc, char *argv[])
    }
    /*---(draw)----------------------------------*/
    DRAW_init            ();
-   my.m_tex    = yGLTEX_png2tex (my.m_file);
-   yGLTEX_get_size (&x_wide, &x_tall);
-   /*> printf ("%2d  %-30.30s  %4dw  %4dt\n", my.m_tex, my.m_file, x_wide, x_tall);   <*/
-   /*> PROG_sizes  (my.i_wide / 2.0, my.i_tall / 2.0);                                <*/
-   rc = yVIKEYS_view_resize  ('r', NULL, x_wide / s_mag, x_tall / s_mag, 'y');
    yVIKEYS_map_init (YVIKEYS_RIGHT, MAP_col, MAP_row);
-   yVIKEYS_map_init (YVIKEYS_RIGHT, MAP_col, MAP_row);
-   /*> yX11_resize (my.w_wide, my.w_tall);                                            <*/
    /*---(load font)-----------------------------*/
    my.font = yFONT_load (my.font_name);
    if (my.font < 0) {
       fprintf(stderr, "Problem loading %s\n", my.font_name);
       return -1;
    }
-   DRAW_now             ();
-   while (s_quit != 'y') {
-      rc = PROG_event           ();
-      if (rc < 0) break;
+   while (!yVIKEYS_quit ()) {
+      rc = PROG_event  ();
+      if (rc < 0)           break;
    }
    PROG_end             ();
    return 0;

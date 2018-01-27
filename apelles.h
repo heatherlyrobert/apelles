@@ -6,8 +6,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define     VER_NUM     "0.2b"
-#define     VER_TXT     "uses yVIKEYS for grid and cursor"
+#define     VER_NUM     "0.2c"
+#define     VER_TXT     "updades for yVIKEYS upgrades and palette"
 
 
 
@@ -31,6 +31,7 @@
 #include    <ySTR.h>         /* CUSTOM  heatherly string handling             */
 #include    <yVIKEYS.h>      /* CUSTOM  heatherly vi_keys standard            */
 #include    <yGLTEX.h>       /* CUSTOM  heatherly texture handling            */
+#include    <yCOLOR.h>       /* CUSTOM  heatherly color handling              */
 
 
 
@@ -48,10 +49,6 @@
 #define     LEN_RECD    2000
 #define     LEN_STR     200
 #define     LEN_LABEL   20
-
-/*---(run as)----------*/
-#define     RUN_USER           'i'      /* running in user mode (ncurses)     */
-#define     RUN_TEST           '-'      /* running as a test    (no ncurses)  */
 
 
 typedef struct timespec  tTSPEC;
